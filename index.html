@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Nexus Bank OS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* === IMPORT MINECRAFT FONT === */
+        @import url('https://fonts.cdnfonts.com/css/minecraft-4');
+
+        /* === COBALT TERMINAL STYLE === */
+        :root {
+            --bg-base: #09090b; /* zinc-950 */
+            --bg-surface: #18181b; /* zinc-900 */
+            --bg-elevated: #27272a; /* zinc-800 */
+            --border-subtle: #27272a;
+            --text-main: #f4f4f5; /* zinc-100 */
+            --text-muted: #a1a1aa; /* zinc-400 */
+            --safe-bottom: env(safe-area-inset-bottom, 16px);
+            --safe-top: env(safe-area-inset-top, 16px);
+        }
+
+        body * {
+            font-family: 'Minecraft', sans-serif !important;
+            letter-spacing: 0.5px;
+        }
+
+        body {
+            background-color: var(--bg-base); color: var(--text-main);
+            -webkit-tap-highlight-color: transparent; overflow: hidden; font-size: 14px;
+        }
+
+        /* Typography & Data display */
+        .text-micro { font-size: 11px; text-transform: uppercase; color: var(--text-muted); }
+
+        /* Rainbow Cobalt Accent */
+        @keyframes rainbow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        
+        .rainbow-text {
+            background: linear-gradient(270deg, #ff0055, #ff00ff, #0055ff, #00ffff, #00ff55);
+            background-size: 400% 400%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: rainbow 6s ease infinite;
+        }
+        .rainbow-bg, .rainbow-bar {
+            background: linear-gradient(270deg, #ff0055, #ff00ff, #0055ff, #00ffff, #00ff55);
+            background-size: 400% 400%; animation: rainbow 6s ease infinite; color: var(--bg-base) !important;
+        }
+
+        /* Snappy Interactions */
+        .clickable { transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.15s, background-color 0.2s; cursor: pointer; }
+        .clickable:active { transform: scale(0.96); opacity: 0.8; }
+
+        /* Compact Surface */
+        .surface { background-color: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 16px; }
+        .surface-input {
+            background-color: var(--bg-base); border: 1px solid var(--border-subtle); color: var(--text-main);
+            border-radius: 10px; padding: 12px; width: 100%; transition: all 0.2s; font-size: 14px;
+        }
+        .surface-input:focus { border-color: var(--text-muted); outline: none; }
+
+        /* Navigation Layout */
+        .page {
+            height: 100vh; overflow-y: auto; 
+            padding: 16px; padding-top: max(16px, var(--safe-top));
+            padding-bottom: calc(90px + var(--safe-bottom)); 
+            display: none; opacity: 0; transform: translateY(5px);
+            transition: opacity 0.2s, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .page.active { display: block; opacity: 1; transform: translateY(0); }
+
+        /* FLOATING PILL NAV BAR */
+        .bottom-nav {
+            position: fixed; bottom: max(16px, var(--safe-bottom)); left: 16px; width: calc(100% - 32px);
+            background-color: rgba(24, 24, 27, 0.85); 
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            display: flex; justify-content: space-around; align-items: center;
+            border-radius: 999px; padding: 8px 12px; height: 60px;
+            border: 1px solid rgba(255,255,255,0.08); z-index: 100;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+        }
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center; gap: 2px;
+            color: var(--text-muted); font-size: 11px; width: 25%; transition: color 0.2s;
+            position: relative;
+        }
+        .nav-icon { transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); opacity: 0.5; color: currentColor; }
+        
+        /* Nav Item Rainbow Active State */
+        .nav-item.active .nav-icon { 
+            opacity: 1; transform: translateY(-3px);
+        }
+        .nav-item.active span:not(.nav-icon) {
+            background: linear-gradient(270deg, #ff0055, #ff00ff, #0055ff, #00ffff, #00ff55);
+            background-size: 400% 400%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: rainbow 6s ease infinite;
+        }
+        .nav-item::after {
+            content: ''; position: absolute; bottom: -6px; width: 4px; height: 4px; border-radius: 50%;
+            background: transparent; transition: background 0.2s;
+        }
+        .nav-item.active::after { 
+            background: linear-gradient(270deg, #ff0055, #ff00ff, #0055ff, #00ffff, #00ff55);
+            background-size: 400% 400%; animation: rainbow 6s ease infinite;
+        }
+
+        /* Compact Modals */
+        .modal { opacity: 0; pointer-events: none; transition: opacity 0.2s; z-index: 200; background: rgba(0,0,0,0.7); }
+        .modal.active { opacity: 1; pointer-events: auto; }
+        .modal-sheet {
+            transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+            background-color: var(--bg-surface); border-top: 1px solid var(--border-subtle);
+            border-top-left-radius: 24px; border-top-right-radius: 24px;
+        }
+        .modal.active .modal-sheet { transform: translateY(0); }
+        .pull-bar { width: 36px; height: 4px; background-color: var(--border-subtle); border-radius: 4px; margin: 0 auto 16px auto; }
+
+        /* Analytics Tab Pills */
+        .tab-pill { padding: 8px 12px; border-radius: 20px; font-size: 12px; color: var(--text-muted); border: 1px solid transparent; transition: 0.2s; }
+        .tab-pill.active { background: linear-gradient(270deg, #ff0055, #ff00ff, #0055ff, #00ffff, #00ff55); background-size: 400% 400%; animation: rainbow 6s ease infinite; color: var(--bg-base); border-color: transparent; font-weight: bold; }
+        .acc-pill { padding: 8px 16px; border-radius: 12px; font-size: 12px; color: var(--text-muted); border: 1px solid var(--border-subtle); white-space: nowrap; transition: 0.2s; background-color: var(--bg-surface); }
+        .acc-pill.active { background: linear-gradient(270deg, #ff0055, #ff00ff, #0055ff, #00ffff, #00ff55); background-size: 400% 400%; animation: rainbow 6s ease infinite; color: var(--bg-base); border-color: transparent; font-weight: bold; }
+
+        ::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body>
+
+    <!-- SVG GRADIENT DEFS FOR RAINBOW ICONS -->
+    <svg width="0" height="0" style="position:absolute; width:0; height:0; pointer-events:none;">
+        <defs>
+            <linearGradient id="rainbowGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#ff0055"><animate attributeName="stop-color" values="#ff0055;#ff00ff;#0055ff;#00ffff;#00ff55;#ff0055" dur="6s" repeatCount="indefinite" /></stop>
+                <stop offset="25%" stop-color="#ff00ff"><animate attributeName="stop-color" values="#ff00ff;#0055ff;#00ffff;#00ff55;#ff0055;#ff00ff" dur="6s" repeatCount="indefinite" /></stop>
+                <stop offset="50%" stop-color="#0055ff"><animate attributeName="stop-color" values="#0055ff;#00ffff;#00ff55;#ff0055;#ff00ff;#0055ff" dur="6s" repeatCount="indefinite" /></stop>
+                <stop offset="75%" stop-color="#00ffff"><animate attributeName="stop-color" values="#00ffff;#00ff55;#ff0055;#ff00ff;#0055ff;#00ffff" dur="6s" repeatCount="indefinite" /></stop>
+                <stop offset="100%" stop-color="#00ff55"><animate attributeName="stop-color" values="#00ff55;#ff0055;#ff00ff;#0055ff;#00ffff;#00ff55" dur="6s" repeatCount="indefinite" /></stop>
+            </linearGradient>
+        </defs>
+    </svg>
+
+    <!-- ================= PAGE: PORTFOLIO (HOME) ================= -->
+    <main id="page-home" class="page active">
+        <!-- Header Compact -->
+        <div class="flex justify-between items-start mb-6">
+            <div>
+                <p class="text-micro mb-1">Solde consolidé</p>
+                <h1 class="text-3xl tracking-tight rainbow-text" id="totalBalance">0.00 €</h1>
+            </div>
+            <div class="text-right">
+                <p class="text-micro mb-1">Mois en cours</p>
+                <p class="text-base text-emerald-500" id="monthCashflow">+0.00 €</p>
+            </div>
+        </div>
+
+        <!-- Ledger / Accounts (High Density Grid) -->
+        <div class="flex justify-between items-center mb-3 px-1">
+            <p class="text-micro">Livre des comptes</p>
+        </div>
+        <div id="accountsGrid" class="grid grid-cols-2 gap-3 mb-6">
+            <!-- JS Injection via dynamic generation -->
+        </div>
+
+        <!-- Recent Transactions -->
+        <p class="text-micro mb-2 ml-1">Transactions récentes</p>
+        <div class="surface overflow-hidden" id="recentHistory">
+            <!-- JS Injection -->
+        </div>
+    </main>
+
+    <!-- ================= PAGE: ACCOUNT DETAILS (SUB-PAGE) ================= -->
+    <main id="page-account-details" class="page">
+        <div class="flex items-center gap-4 mb-8 mt-2">
+            <button onclick="closeAccountDetails()" class="w-10 h-10 surface flex items-center justify-center text-zinc-100 clickable flex-shrink-0">
+                <svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            </button>
+            <div>
+                <p class="text-micro mb-1">Détails du compte</p>
+                <h1 class="text-2xl font-bold tracking-tight rainbow-text" id="detailAccountName">Nom</h1>
+            </div>
+        </div>
+
+        <div class="surface p-6 mb-6 text-center relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-[3px] rainbow-bg opacity-90"></div>
+            <p class="text-micro mb-2">Solde disponible</p>
+            <p class="text-4xl font-extrabold font-num text-zinc-100" id="detailAccountBalance">0.00 €</p>
+        </div>
+
+        <!-- NEW: Action Buttons specific to this account -->
+        <div class="grid grid-cols-2 gap-3 mb-3">
+            <button onclick="openTxModal(false, currentViewedAccount)" class="surface p-3 flex flex-col justify-center items-center clickable border border-rose-500/20">
+                <svg class="text-rose-500 mb-1" width="24" height="24" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><line x1="17" y1="7" x2="7" y2="17"></line><polyline points="17 17 7 17 7 7"></polyline></svg>
+                <span class="text-[10px] text-zinc-300 uppercase tracking-widest mt-1">Débit</span>
+            </button>
+            <button onclick="openTxModal(true, currentViewedAccount)" class="surface p-3 flex flex-col justify-center items-center clickable border border-emerald-500/20">
+                <svg class="text-emerald-500 mb-1" width="24" height="24" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                <span class="text-[10px] text-zinc-300 uppercase tracking-widest mt-1">Crédit</span>
+            </button>
+        </div>
+        <div class="surface p-3 mb-8 clickable flex justify-center items-center gap-2" onclick="openTransferModal(currentViewedAccount)">
+            <svg width="16" height="16" stroke="url(#rainbowGrad)" viewBox="0 0 24 24" stroke-width="2" fill="none"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+            <span class="text-[10px] rainbow-text uppercase tracking-widest">Transfert Interne</span>
+        </div>
+
+        <div class="flex justify-between items-center mb-3 px-1">
+            <p class="text-micro">Historique complet du compte</p>
+        </div>
+        <div class="surface overflow-hidden mb-6" id="detailAccountLedger">
+            <!-- JS Injection -->
+        </div>
+    </main>
+
+    <!-- ================= PAGE: OPERATIONS (ACTION) ================= -->
+    <main id="page-action" class="page">
+        <h1 class="text-xl mb-6">Centre d'opérations</h1>
+        
+        <!-- Standard Actions -->
+        <div class="grid grid-cols-2 gap-3 mb-6">
+            <button onclick="openTxModal(false)" class="surface p-4 flex flex-col justify-center items-center clickable border border-rose-500/20">
+                <svg class="text-rose-500 mb-2" width="28" height="28" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><line x1="17" y1="7" x2="7" y2="17"></line><polyline points="17 17 7 17 7 7"></polyline></svg>
+                <span class="text-xs text-zinc-300">Nouveau Débit</span>
+            </button>
+            <button onclick="openTxModal(true)" class="surface p-4 flex flex-col justify-center items-center clickable border border-emerald-500/20">
+                <svg class="text-emerald-500 mb-2" width="28" height="28" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                <span class="text-xs text-zinc-300">Nouvelle Entrée</span>
+            </button>
+        </div>
+
+        <!-- Internal Transfer -->
+        <div class="surface p-4 mb-6 clickable" onclick="openTransferModal()">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center">
+                    <svg width="20" height="20" stroke="url(#rainbowGrad)" viewBox="0 0 24 24" stroke-width="2" fill="none"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+                </div>
+                <div>
+                    <p class="text-sm rainbow-text">Transfert Interne</p>
+                    <p class="text-xs text-zinc-500">Mouvement entre vos comptes</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fast Actions (High Density) -->
+        <p class="text-micro mb-2 ml-1">Saisie rapide instantanée</p>
+        <div class="flex flex-wrap gap-2">
+            <button onclick="quickTx('Fastfood', 12, 'Revolut')" class="surface px-3 py-2 flex items-center gap-2 rounded-lg text-xs clickable">
+                <svg width="14" height="14" class="text-zinc-400" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"></path><path d="M7 2v20"></path><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"></path></svg> Fastfood
+            </button>
+            <button onclick="quickTx('Puff', 10, 'Cash')" class="surface px-3 py-2 flex items-center gap-2 rounded-lg text-xs clickable">
+                <svg width="14" height="14" class="text-zinc-400" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M17.5 19c9.5 0 9.5-14 0-14-1-4-10-4-11 0-9 0-9 14 0 14h11Z"></path></svg> Puff
+            </button>
+            <button onclick="quickTx('Courses', 40, 'Revolut')" class="surface px-3 py-2 flex items-center gap-2 rounded-lg text-xs clickable">
+                <svg width="14" height="14" class="text-zinc-400" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg> Courses
+            </button>
+            <button onclick="quickTx('Carburant', 50, 'Revolut')" class="surface px-3 py-2 flex items-center gap-2 rounded-lg text-xs clickable">
+                <svg width="14" height="14" class="text-zinc-400" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M3 22h12"/><path d="M4 9h10"/><path d="M14 22V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v18"/><path d="M14 13h2a2 2 0 0 1 2 2v2a2 2 0 0 0 2 2h0a2 2 0 0 0 2-2V9.83a2 2 0 0 0-.59-1.42L18 5"/></svg> Carburant
+            </button>
+            <button onclick="quickTx('Abonnement', 10, 'Wirex')" class="surface px-3 py-2 flex items-center gap-2 rounded-lg text-xs clickable">
+                <svg width="14" height="14" class="text-zinc-400" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><path d="M12 18h.01"/></svg> Abo
+            </button>
+            <button onclick="quickTx('Vente Vinted', 20, 'Revolut', true)" class="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-3 py-2 flex items-center gap-2 rounded-lg text-xs clickable">
+                <svg width="14" height="14" class="text-emerald-400" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg> Vente (+)
+            </button>
+        </div>
+    </main>
+
+    <!-- ================= PAGE: ANALYTICS (STATS) ================= -->
+    <main id="page-stats" class="page">
+        <h1 class="text-lg mb-4">Analytique</h1>
+
+        <!-- Account Selector (Dynamically populated) -->
+        <div class="flex gap-2 mb-4 overflow-x-auto pb-2" id="analyticAccFilters">
+            <!-- JS Injection -->
+        </div>
+
+        <!-- Timeframe Selector -->
+        <div class="flex gap-2 mb-6 bg-zinc-900 p-1 rounded-full border border-zinc-800">
+            <button onclick="setAnalysisTimeframe('today')" id="tab-today" class="tab-pill flex-1 active clickable">Aujourd'hui</button>
+            <button onclick="setAnalysisTimeframe('week')" id="tab-week" class="tab-pill flex-1 clickable">7 Jours</button>
+            <button onclick="setAnalysisTimeframe('month')" id="tab-month" class="tab-pill flex-1 clickable">Mois</button>
+        </div>
+
+        <!-- Analytics Overview -->
+        <div class="grid grid-cols-2 gap-3 mb-6">
+            <div class="surface p-3 border-l-2 border-emerald-500">
+                <p class="text-micro mb-1 text-emerald-500">Entrées</p>
+                <p class="text-base" id="stat-in">0.00 €</p>
+            </div>
+            <div class="surface p-3 border-l-2 border-rose-500">
+                <p class="text-micro mb-1 text-rose-500">Sorties</p>
+                <p class="text-base" id="stat-out">0.00 €</p>
+            </div>
+        </div>
+
+        <!-- OBJECTIFS ET BUDGETS -->
+        <div class="flex justify-between items-center mb-3 mt-6">
+            <p class="text-micro ml-1 rainbow-text">Suivi & Budgets</p>
+            <button onclick="openObjModal()" class="w-8 h-8 bg-zinc-800 rounded-full flex items-center justify-center text-lg text-zinc-300 clickable">
+                <svg width="16" height="16" stroke="url(#rainbowGrad)" viewBox="0 0 24 24" stroke-width="3" fill="none"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            </button>
+        </div>
+        <div class="space-y-3 mb-6" id="objectivesList">
+            <!-- JS Injection -->
+        </div>
+
+        <!-- Category Breakdown -->
+        <p class="text-micro mb-2 ml-1">Répartition des sorties</p>
+        <div class="surface p-3 space-y-3 mb-6" id="categoryBreakdown">
+            <!-- JS Injection -->
+        </div>
+    </main>
+
+    <!-- ================= PAGE: NEXUS / SYSTEM ================= -->
+    <main id="page-nexus" class="page">
+        <h1 class="text-lg mb-4">Système & Grand Livre</h1>
+
+        <input type="text" id="searchLog" placeholder="Rechercher (ID, Montant, Catégorie)..." onkeyup="renderFullLedger()" class="surface-input mb-4 text-xs py-2">
+
+        <!-- Full Ledger -->
+        <div class="surface overflow-y-auto max-h-[300px] mb-6 border border-zinc-800" id="fullLedger">
+            <!-- JS Injection -->
+        </div>
+
+        <p class="text-micro mb-2 ml-1 mt-6">Gestion des comptes</p>
+        <div class="surface p-4 mb-6">
+            <div id="sysAccountList" class="space-y-3">
+                <!-- JS Injection -->
+            </div>
+            <button onclick="sysAddAccount()" class="w-full mt-4 py-3 rounded-xl text-sm rainbow-bg text-zinc-950 active:scale-95 transition-transform font-bold">
+                + Ajouter un compte
+            </button>
+        </div>
+
+        <p class="text-micro mb-2 ml-1">Administration des données</p>
+        <div class="surface overflow-hidden">
+            <button onclick="sysExport()" class="w-full p-4 text-left flex justify-between items-center bg-zinc-900 border-b border-zinc-800 text-xs clickable">
+                <span>Exporter la base (JSON)</span>
+                <svg width="14" height="14" stroke="url(#rainbowGrad)" viewBox="0 0 24 24" stroke-width="2" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            </button>
+            <label class="w-full p-4 text-left flex justify-between items-center bg-zinc-900 border-b border-zinc-800 text-xs clickable cursor-pointer">
+                <span>Importer une base (JSON)</span>
+                <svg width="14" height="14" stroke="url(#rainbowGrad)" viewBox="0 0 24 24" stroke-width="2" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                <input type="file" class="hidden" accept=".json" onchange="sysImport(event)">
+            </label>
+            <button onclick="sysReset()" class="w-full p-4 text-left flex justify-between items-center bg-zinc-900 text-xs text-rose-500 clickable">
+                <span>Purger les registres (Reset)</span>
+                <svg width="14" height="14" class="text-rose-500" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            </button>
+        </div>
+    </main>
+
+    <!-- ================= FLOATING PILL NAV ================= -->
+    <nav class="bottom-nav">
+        <div class="nav-item active clickable" onclick="switchTab('home', this)">
+            <svg class="nav-icon" width="22" height="22" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"/><path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z"/></svg>
+            <span>Portefeuille</span>
+        </div>
+        <div class="nav-item clickable" onclick="switchTab('action', this)">
+            <svg class="nav-icon" width="22" height="22" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <span>Action</span>
+        </div>
+        <div class="nav-item clickable" onclick="switchTab('stats', this)">
+            <svg class="nav-icon" width="22" height="22" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            <span>Analytique</span>
+        </div>
+        <div class="nav-item clickable" onclick="switchTab('nexus', this)">
+            <svg class="nav-icon" width="22" height="22" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <span>Système</span>
+        </div>
+    </nav>
+
+    <!-- ================= MODALS ================= -->
+    
+    <!-- Transaction Modal -->
+    <div id="modal-tx" class="modal fixed inset-0 flex items-end justify-center">
+        <div class="absolute inset-0" onclick="closeModal('modal-tx')"></div>
+        <div class="modal-sheet w-full p-5 pb-10 relative z-10">
+            <div class="pull-bar"></div>
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="txTitle" class="text-sm uppercase tracking-wider text-zinc-100">SAISIE</h3>
+                <span class="text-[10px] text-zinc-500 font-num" id="txRef">TXN-AUTO</span>
+            </div>
+            
+            <div class="flex gap-2 mb-4 items-center border-b border-zinc-800 pb-4">
+                <span class="text-2xl" id="txSign">-</span>
+                <input type="number" id="txAmt" class="bg-transparent border-none outline-none text-4xl text-zinc-100 w-full" placeholder="0.00" inputmode="decimal">
+                <span class="text-xl text-zinc-500">€</span>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-3 mb-6">
+                <div>
+                    <p class="text-micro mb-1">Libellé</p>
+                    <input type="text" id="txDesc" class="surface-input" placeholder="Ex: Auchan">
+                </div>
+                <div>
+                    <p class="text-micro mb-1">Compte source/cible</p>
+                    <select id="txAcc" class="surface-input text-xs">
+                        <!-- JS Injection -->
+                    </select>
+                </div>
+            </div>
+
+            <button onclick="confirmTx()" class="w-full py-3 rounded-xl text-sm rainbow-bg text-zinc-950 active:scale-95 transition-transform" id="txBtn">Valider l'opération</button>
+        </div>
+    </div>
+
+    <!-- Transfer Modal -->
+    <div id="modal-transfer" class="modal fixed inset-0 flex items-end justify-center">
+        <div class="absolute inset-0" onclick="closeModal('modal-transfer')"></div>
+        <div class="modal-sheet w-full p-5 pb-10 relative z-10">
+            <div class="pull-bar"></div>
+            <h3 class="text-sm uppercase tracking-wider rainbow-text mb-4">ORDRE DE VIREMENT INTERNE</h3>
+            
+            <div class="flex gap-2 mb-4 items-center border-b border-zinc-800 pb-4">
+                <input type="number" id="tfAmt" class="bg-transparent border-none outline-none text-4xl text-zinc-100 w-full text-center" placeholder="0.00" inputmode="decimal">
+                <span class="text-xl text-zinc-500">€</span>
+            </div>
+            
+            <div class="flex items-center gap-2 mb-6 bg-zinc-900 p-2 rounded-xl border border-zinc-800">
+                <div class="flex-1">
+                    <p class="text-micro text-center mb-1 text-rose-500">Compte à débiter</p>
+                    <select id="tfFrom" class="w-full bg-transparent border-none text-center text-sm outline-none text-zinc-100">
+                        <!-- JS Injection -->
+                    </select>
+                </div>
+                <span class="text-zinc-600">→</span>
+                <div class="flex-1">
+                    <p class="text-micro text-center mb-1 text-emerald-500">Compte à créditer</p>
+                    <select id="tfTo" class="w-full bg-transparent border-none text-center text-sm outline-none text-zinc-100">
+                        <!-- JS Injection -->
+                    </select>
+                </div>
+            </div>
+
+            <button onclick="confirmTransfer()" class="rainbow-bg w-full py-3 rounded-xl text-sm text-zinc-950 active:scale-95 transition-transform">Exécuter le virement</button>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="modal-edit" class="modal fixed inset-0 flex items-end justify-center">
+        <div class="absolute inset-0" onclick="closeModal('modal-edit')"></div>
+        <div class="modal-sheet w-full p-5 pb-10 relative z-10">
+            <div class="pull-bar"></div>
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-sm uppercase tracking-wider text-zinc-100">MODIFIER L'OPÉRATION</h3>
+                <span class="text-[10px] text-zinc-500 font-num" id="editRef">TXN-000</span>
+            </div>
+            
+            <div id="editTransferWarning" class="hidden mb-4 p-3 bg-rose-500/10 border border-rose-500/30 rounded-lg text-rose-500 text-xs text-center">
+                Ceci est un virement interne. Vous ne pouvez que l'annuler entièrement.
+            </div>
+
+            <div id="editForm">
+                <div class="flex gap-2 mb-4 items-center border-b border-zinc-800 pb-4">
+                    <span class="text-2xl" id="editSign">-</span>
+                    <input type="number" id="editAmt" class="bg-transparent border-none outline-none text-4xl text-zinc-100 w-full" placeholder="0.00" inputmode="decimal">
+                    <span class="text-xl text-zinc-500">€</span>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3 mb-6">
+                    <div>
+                        <p class="text-micro mb-1">Libellé</p>
+                        <input type="text" id="editDesc" class="surface-input" placeholder="Ex: Auchan">
+                    </div>
+                    <div>
+                        <p class="text-micro mb-1">Compte associé</p>
+                        <select id="editAcc" class="surface-input text-xs">
+                            <!-- JS Injection -->
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="deleteTxAction()" class="w-1/3 py-3 rounded-xl text-sm bg-rose-500/10 text-rose-500 border border-rose-500/30 active:scale-95 transition-transform">Supprimer</button>
+                <button onclick="confirmEditTx()" id="editSaveBtn" class="w-2/3 py-3 rounded-xl text-sm rainbow-bg text-zinc-950 active:scale-95 transition-transform">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Objective Modal -->
+    <div id="modal-obj" class="modal fixed inset-0 flex items-end justify-center">
+        <div class="absolute inset-0" onclick="closeModal('modal-obj')"></div>
+        <div class="modal-sheet w-full p-5 pb-10 relative z-10">
+            <div class="pull-bar"></div>
+            <h3 class="text-sm uppercase tracking-wider rainbow-text mb-4">DÉFINIR UN OBJECTIF</h3>
+            
+            <div class="flex gap-2 mb-4 items-center border-b border-zinc-800 pb-4">
+                <input type="number" id="objAmt" class="bg-transparent border-none outline-none text-4xl text-zinc-100 w-full text-center" placeholder="0.00" inputmode="decimal">
+                <span class="text-xl text-zinc-500">€</span>
+            </div>
+            
+            <div class="grid grid-cols-1 gap-3 mb-6">
+                <div>
+                    <p class="text-micro mb-1">Nom du suivi</p>
+                    <input type="text" id="objName" class="surface-input" placeholder="Ex: Budget Plaisir, Achat PC...">
+                </div>
+                <div>
+                    <p class="text-micro mb-1">Type de suivi</p>
+                    <select id="objType" class="surface-input text-xs" onchange="toggleObjType()">
+                        <option value="budget">🔴 Ne pas dépasser (Dépenses)</option>
+                        <option value="save">🟢 Atteindre un but (Épargne)</option>
+                    </select>
+                </div>
+                <div id="objTargetContainer">
+                    <p class="text-micro mb-1" id="objTargetLabel">Catégorie à limiter</p>
+                    <select id="objTarget" class="surface-input text-xs">
+                        <option value="Alimentation">Alimentation (McDo, etc)</option>
+                        <option value="Loisirs">Loisirs (Puff, Ciné)</option>
+                        <option value="Courses">Courses</option>
+                        <option value="All">Toutes les dépenses</option>
+                    </select>
+                </div>
+            </div>
+
+            <button onclick="confirmObj()" class="rainbow-bg w-full py-3 rounded-xl text-sm text-zinc-950 active:scale-95 transition-transform">Créer l'objectif</button>
+        </div>
+    </div>
+
+    <script>
+        // ================= SVG ICONS =================
+        const SVG = {
+            food: '<svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"></path><path d="M7 2v20"></path><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"></path></svg>',
+            cloud: '<svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M17.5 19c9.5 0 9.5-14 0-14-1-4-10-4-11 0-9 0-9 14 0 14h11Z"></path></svg>',
+            cart: '<svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>',
+            fuel: '<svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M3 22h12"/><path d="M4 9h10"/><path d="M14 22V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v18"/><path d="M14 13h2a2 2 0 0 1 2 2v2a2 2 0 0 0 2 2h0a2 2 0 0 0 2-2V9.83a2 2 0 0 0-.59-1.42L18 5"/></svg>',
+            phone: '<svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><path d="M12 18h.01"/></svg>',
+            package: '<svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>',
+            transfer: '<svg width="20" height="20" viewBox="0 0 24 24" stroke="url(#rainbowGrad)" stroke-width="2" fill="none"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>',
+            file: '<svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>'
+        };
+
+        // ================= SYSTEM ARCHITECTURE =================
+        const DATA_KEY = 'nexusBankPro';
+        let db = JSON.parse(localStorage.getItem(DATA_KEY)) || {
+            accounts: { Cash: 0, Revolut: 0, Wirex: 0, Epargne: 0 },
+            ledger: [], 
+            objectives: []
+        };
+        
+        if(!db.objectives) db.objectives = [];
+
+        let txModeGain = false;
+        let currentAnalyticTimeframe = 'today'; 
+        let currentAnalyticAccount = 'all';
+        let currentEditId = null;
+        let currentViewedAccount = null; // Variable for the Account Details page
+
+        // Utilities
+        function vibrate(type = 'light') {
+            if (!navigator.vibrate) return;
+            const patterns = { light: 10, heavy: [20, 30, 20], error: [40, 50, 40] };
+            navigator.vibrate(patterns[type]);
+        }
+        function saveDB() { localStorage.setItem(DATA_KEY, JSON.stringify(db)); renderAll(); }
+        function genID() { return 'TXN-' + Math.floor(Math.random() * 900000 + 100000); }
+        function formatCurr(num) { return new Intl.NumberFormat('fr-BE', { style: 'currency', currency: 'EUR' }).format(num); }
+        
+        function autoCategorize(desc) {
+            const d = desc.toLowerCase();
+            const map = {
+                'mcdo': 'Alimentation', 'burger': 'Alimentation', 'kfc': 'Alimentation', 'fastfood': 'Alimentation',
+                'course': 'Courses', 'auchan': 'Courses', 'carrefour': 'Courses', 'aldi': 'Courses',
+                'puff': 'Loisirs', 'vape': 'Loisirs', 'ciné': 'Loisirs',
+                'essence': 'Transport', 'total': 'Transport', 'sncf': 'Transport',
+                'vinted': 'Ventes', 'vente': 'Ventes',
+                'abo': 'Abonnements', 'netflix': 'Abonnements', 'spotify': 'Abonnements', 'salle': 'Abonnements'
+            };
+            for(let key in map) { if(d.includes(key)) return map[key]; }
+            return 'Opération Diverse';
+        }
+
+        function getIcon(cat) {
+            const m = {
+                'Alimentation': SVG.food, 'Loisirs': SVG.cloud, 'Courses': SVG.cart,
+                'Transport': SVG.fuel, 'Ventes': SVG.package, 'Abonnements': SVG.phone,
+                'Virement Interne': SVG.transfer
+            };
+            return m[cat] || SVG.file;
+        }
+
+        // ================= GESTION DES COMPTES =================
+        function populateAccountDropdowns() {
+            const accounts = Object.keys(db.accounts);
+            
+            // Menus déroulants classiques
+            const selects = ['txAcc', 'tfFrom', 'tfTo', 'editAcc'];
+            selects.forEach(id => {
+                const el = document.getElementById(id);
+                if(el) {
+                    const currentVal = el.value;
+                    el.innerHTML = '';
+                    accounts.forEach(acc => {
+                        el.innerHTML += `<option value="${acc}">${acc}</option>`;
+                    });
+                    if(accounts.includes(currentVal)) el.value = currentVal;
+                }
+            });
+
+            // Filtres Analytiques
+            const filterContainer = document.getElementById('analyticAccFilters');
+            if(filterContainer) {
+                filterContainer.innerHTML = `<button onclick="setAnalysisAccount('all')" id="acc-filter-all" class="acc-pill ${currentAnalyticAccount === 'all' ? 'active' : ''} clickable">Tous</button>`;
+                accounts.forEach(acc => {
+                    filterContainer.innerHTML += `<button onclick="setAnalysisAccount('${acc}')" id="acc-filter-${acc}" class="acc-pill ${currentAnalyticAccount === acc ? 'active' : ''} clickable">${acc}</button>`;
+                });
+            }
+
+            // Met à jour la liste des objectifs si besoin
+            toggleObjType();
+        }
+
+        function sysAddAccount() {
+            vibrate('light');
+            const name = prompt("Nom du nouveau compte :");
+            if(!name || name.trim() === '') return;
+            const cleanName = name.trim();
+            
+            if(db.accounts[cleanName] !== undefined) {
+                vibrate('error'); alert("Ce compte existe déjà !"); return;
+            }
+            
+            vibrate('heavy');
+            db.accounts[cleanName] = 0;
+            populateAccountDropdowns();
+            saveDB();
+        }
+
+        function sysEditAccount(oldName) {
+            vibrate('light');
+            const action = prompt(`Compte : ${oldName}\n\nPour RENOMMER, tapez le nouveau nom.\nPour SUPPRIMER, tapez "SUPPRIMER".`, oldName);
+            
+            if(!action || action.trim() === '') return;
+            
+            if(action.trim().toUpperCase() === 'SUPPRIMER') {
+                if(db.accounts[oldName] !== 0) {
+                    if(!confirm(`Attention, le solde n'est pas à zéro (${formatCurr(db.accounts[oldName])}). Confirmer la suppression ?`)) return;
+                }
+                delete db.accounts[oldName];
+                if(currentAnalyticAccount === oldName) currentAnalyticAccount = 'all';
+                vibrate('heavy');
+                populateAccountDropdowns();
+                saveDB();
+            } else {
+                const newName = action.trim();
+                if(newName === oldName) return;
+                if(db.accounts[newName] !== undefined) {
+                    vibrate('error'); alert("Ce nom est déjà pris !"); return;
+                }
+                
+                // Transférer les données
+                db.accounts[newName] = db.accounts[oldName];
+                delete db.accounts[oldName];
+                
+                // Mettre à jour l'historique et les objectifs
+                db.ledger.forEach(tx => {
+                    if(tx.acc === oldName) tx.acc = newName;
+                    if(tx.type === 'transfer') tx.desc = tx.desc.replace(oldName, newName);
+                });
+                db.objectives.forEach(obj => {
+                    if(obj.type === 'save' && obj.target === oldName) obj.target = newName;
+                });
+                
+                if(currentAnalyticAccount === oldName) currentAnalyticAccount = newName;
+                if(currentViewedAccount === oldName) currentViewedAccount = newName;
+                
+                vibrate('heavy');
+                populateAccountDropdowns();
+                saveDB();
+            }
+        }
+
+        function renderSysAccounts() {
+            const list = document.getElementById('sysAccountList');
+            if(!list) return;
+            list.innerHTML = '';
+            Object.entries(db.accounts).forEach(([name, bal]) => {
+                list.innerHTML += `
+                    <div class="flex justify-between items-center p-3 border-b border-zinc-800/50 last:border-0 clickable hover:bg-zinc-800/30" onclick="sysEditAccount('${name}')">
+                        <span class="text-sm font-bold text-zinc-200">${name}</span>
+                        <span class="text-xs text-zinc-500">${formatCurr(bal)} ✏️</span>
+                    </div>
+                `;
+            });
+        }
+
+
+        // ================= ROUTER & MODALS =================
+        function switchTab(tabId, el) {
+            vibrate('light');
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            if(el) {
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                el.classList.add('active');
+            }
+            document.getElementById('page-' + tabId).classList.add('active');
+            
+            if(tabId === 'home') renderHome();
+            if(tabId === 'stats') updateAnalytics(currentAnalyticTimeframe);
+            if(tabId === 'nexus') { renderFullLedger(); renderSysAccounts(); }
+            if(tabId === 'account-details') renderAccountDetails();
+        }
+
+        function openModal(id) { vibrate('light'); document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+        // ================= TRANSACTIONS ENGINE =================
+        function openTxModal(isGain, preselectAcc = null) {
+            txModeGain = isGain;
+            document.getElementById('txRef').innerText = genID();
+            document.getElementById('txAmt').value = '';
+            document.getElementById('txDesc').value = '';
+            
+            const title = document.getElementById('txTitle');
+            const sign = document.getElementById('txSign');
+            
+            if(isGain) {
+                title.innerText = "CRÉDIT (ENCAISSEMENT)"; title.className = "text-sm uppercase tracking-wider text-emerald-500";
+                sign.innerText = "+"; sign.className = "text-2xl text-emerald-500";
+            } else {
+                title.innerText = "DÉBIT (DÉCAISSEMENT)"; title.className = "text-sm uppercase tracking-wider text-rose-500";
+                sign.innerText = "-"; sign.className = "text-2xl text-rose-500";
+            }
+
+            if(preselectAcc && db.accounts.hasOwnProperty(preselectAcc)) {
+                document.getElementById('txAcc').value = preselectAcc;
+            }
+
+            openModal('modal-tx');
+            setTimeout(() => document.getElementById('txAmt').focus(), 100);
+        }
+
+        function confirmTx() {
+            const amt = parseFloat(document.getElementById('txAmt').value);
+            const desc = document.getElementById('txDesc').value || (txModeGain ? 'Crédit Divers' : 'Débit Divers');
+            const acc = document.getElementById('txAcc').value;
+
+            if(!amt || amt <= 0 || !db.accounts.hasOwnProperty(acc)) { vibrate('error'); return; }
+            
+            vibrate('heavy');
+            const cat = autoCategorize(desc);
+            const id = document.getElementById('txRef').innerText;
+            const date = new Date().toISOString();
+
+            db.accounts[acc] += (txModeGain ? amt : -amt);
+            db.ledger.unshift({ id, date, type: txModeGain ? 'gain' : 'loss', amt, desc, acc, cat });
+            
+            saveDB(); closeModal('modal-tx'); 
+            
+            if(document.getElementById('page-account-details').classList.contains('active')) {
+                renderAccountDetails();
+            } else {
+                switchTab('home', document.querySelectorAll('.nav-item')[0]);
+            }
+        }
+
+        function openTransferModal(preselectAcc = null) {
+            document.getElementById('tfAmt').value = '';
+            if(preselectAcc && db.accounts.hasOwnProperty(preselectAcc)) {
+                document.getElementById('tfFrom').value = preselectAcc;
+            }
+            openModal('modal-transfer');
+        }
+
+        function confirmTransfer() {
+            const amt = parseFloat(document.getElementById('tfAmt').value);
+            const from = document.getElementById('tfFrom').value;
+            const to = document.getElementById('tfTo').value;
+
+            if(!amt || amt <= 0 || from === to || !db.accounts.hasOwnProperty(from) || !db.accounts.hasOwnProperty(to)) { vibrate('error'); return; }
+
+            vibrate('heavy');
+            db.accounts[from] -= amt;
+            db.accounts[to] += amt;
+            
+            const id = genID(); const date = new Date().toISOString();
+            db.ledger.unshift({ id: id+'-OUT', date, type: 'transfer', amt: -amt, desc: `↗ Virement vers ${to}`, acc: from, cat: 'Virement Interne' });
+            db.ledger.unshift({ id: id+'-IN', date, type: 'transfer', amt, desc: `↙ Virement depuis ${from}`, acc: to, cat: 'Virement Interne' });
+            
+            saveDB(); closeModal('modal-transfer'); 
+
+            if(document.getElementById('page-account-details').classList.contains('active')) {
+                renderAccountDetails();
+            } else {
+                switchTab('home', document.querySelectorAll('.nav-item')[0]);
+            }
+        }
+
+        function quickTx(desc, amt, acc, isGain = false) {
+            vibrate('heavy');
+            // Sécurité si le compte du raccourci a été supprimé
+            if(db.accounts[acc] === undefined) acc = Object.keys(db.accounts)[0];
+            
+            db.accounts[acc] += (isGain ? amt : -amt);
+            db.ledger.unshift({ id: genID(), date: new Date().toISOString(), type: isGain?'gain':'loss', amt: amt, desc, acc, cat: autoCategorize(desc) });
+            saveDB(); switchTab('home', document.querySelectorAll('.nav-item')[0]);
+        }
+
+        function openEditModal(id) {
+            const tx = db.ledger.find(t => t.id === id);
+            if (!tx) return;
+            
+            vibrate('light');
+            currentEditId = id;
+            document.getElementById('editRef').innerText = id;
+            
+            if (tx.type === 'transfer') {
+                document.getElementById('editForm').style.display = 'none';
+                document.getElementById('editTransferWarning').style.display = 'block';
+                document.getElementById('editSaveBtn').style.display = 'none';
+            } else {
+                document.getElementById('editForm').style.display = 'block';
+                document.getElementById('editTransferWarning').style.display = 'none';
+                document.getElementById('editSaveBtn').style.display = 'block';
+                
+                document.getElementById('editAmt').value = Math.abs(tx.amt);
+                document.getElementById('editDesc').value = tx.desc;
+                // Si le compte originel a été effacé, on met le premier dispo
+                document.getElementById('editAcc').value = db.accounts.hasOwnProperty(tx.acc) ? tx.acc : Object.keys(db.accounts)[0];
+                
+                const signEl = document.getElementById('editSign');
+                if(tx.type === 'gain') {
+                    signEl.innerText = '+'; signEl.className = 'text-2xl text-emerald-500';
+                } else {
+                    signEl.innerText = '-'; signEl.className = 'text-2xl text-rose-500';
+                }
+            }
+            openModal('modal-edit');
+        }
+
+        function confirmEditTx() {
+            const txIndex = db.ledger.findIndex(t => t.id === currentEditId);
+            if (txIndex === -1) return;
+            const tx = db.ledger[txIndex];
+            
+            const newAmt = parseFloat(document.getElementById('editAmt').value);
+            const newDesc = document.getElementById('editDesc').value;
+            const newAcc = document.getElementById('editAcc').value;
+
+            if(!newAmt || newAmt <= 0 || !db.accounts.hasOwnProperty(newAcc)) { vibrate('error'); return; }
+            vibrate('heavy');
+            
+            // Restaure le compte d'origine s'il existe encore
+            if(db.accounts[tx.acc] !== undefined) {
+                if(tx.type === 'gain') db.accounts[tx.acc] -= tx.amt;
+                else if(tx.type === 'loss') db.accounts[tx.acc] += tx.amt;
+            }
+            
+            // Applique sur le nouveau
+            if(tx.type === 'gain') db.accounts[newAcc] += newAmt;
+            else if(tx.type === 'loss') db.accounts[newAcc] -= newAmt;
+
+            db.ledger[txIndex].amt = newAmt;
+            db.ledger[txIndex].desc = newDesc || tx.desc;
+            db.ledger[txIndex].acc = newAcc;
+            db.ledger[txIndex].cat = autoCategorize(newDesc);
+            
+            saveDB(); closeModal('modal-edit');
+            if(document.getElementById('page-account-details').classList.contains('active')) renderAccountDetails();
+        }
+
+        function deleteTxAction() {
+            vibrate('error');
+            if(!confirm(`Supprimer définitivement l'opération ${currentEditId} ?`)) return;
+            
+            const isTransfer = currentEditId.includes('-IN') || currentEditId.includes('-OUT');
+            const baseId = isTransfer ? currentEditId.replace('-IN', '').replace('-OUT', '') : currentEditId;
+            const txsToDelete = db.ledger.filter(t => t.id === baseId || t.id === baseId + '-IN' || t.id === baseId + '-OUT');
+            
+            txsToDelete.forEach(tx => {
+                if(db.accounts[tx.acc] !== undefined) {
+                    if(tx.type === 'gain') db.accounts[tx.acc] -= tx.amt;
+                    else if(tx.type === 'loss') db.accounts[tx.acc] += tx.amt;
+                    else if(tx.type === 'transfer') db.accounts[tx.acc] -= tx.amt; 
+                }
+                const idx = db.ledger.findIndex(t => t.id === tx.id);
+                if(idx > -1) db.ledger.splice(idx, 1);
+            });
+            
+            saveDB(); closeModal('modal-edit');
+            if(document.getElementById('page-account-details').classList.contains('active')) renderAccountDetails();
+        }
+
+        // ================= OBJECTIVES ENGINE =================
+        function toggleObjType() {
+            const type = document.getElementById('objType').value;
+            const targetLabel = document.getElementById('objTargetLabel');
+            const targetSelect = document.getElementById('objTarget');
+            
+            targetSelect.innerHTML = '';
+            if(type === 'budget') {
+                targetLabel.innerText = "Catégorie à limiter (Mois)";
+                targetSelect.innerHTML = '<option value="Alimentation">Alimentation (McDo...)</option><option value="Loisirs">Loisirs (Puff...)</option><option value="Courses">Courses</option><option value="All">Toutes les dépenses</option>';
+            } else {
+                targetLabel.innerText = "Compte à surveiller";
+                Object.keys(db.accounts).forEach(acc => {
+                    targetSelect.innerHTML += `<option value="${acc}">${acc}</option>`;
+                });
+            }
+        }
+
+        function openObjModal() {
+            document.getElementById('objAmt').value = '';
+            document.getElementById('objName').value = '';
+            toggleObjType();
+            openModal('modal-obj');
+        }
+
+        function confirmObj() {
+            const amt = parseFloat(document.getElementById('objAmt').value);
+            const name = document.getElementById('objName').value;
+            const type = document.getElementById('objType').value;
+            const target = document.getElementById('objTarget').value;
+
+            if(!amt || amt <= 0 || !name) { vibrate('error'); return; }
+
+            vibrate('heavy');
+            db.objectives.push({ id: genID(), name, amt, type, target });
+            saveDB();
+            closeModal('modal-obj');
+            if(document.getElementById('page-stats').classList.contains('active')) {
+                updateAnalytics(currentAnalyticTimeframe);
+            }
+        }
+
+        function deleteObj(id) {
+            vibrate('error');
+            if(confirm("Supprimer ce suivi de budget/épargne ?")) {
+                db.objectives = db.objectives.filter(o => o.id !== id);
+                saveDB();
+                updateAnalytics(currentAnalyticTimeframe);
+            }
+        }
+
+        // ================= ACCOUNT DETAILS VIEW =================
+        function openAccountDetails(accName) {
+            vibrate('light');
+            currentViewedAccount = accName;
+            switchTab('account-details', null);
+        }
+
+        function closeAccountDetails() {
+            vibrate('light');
+            currentViewedAccount = null;
+            switchTab('home', document.querySelectorAll('.nav-item')[0]);
+        }
+
+        function renderAccountDetails() {
+            if (!currentViewedAccount) return;
+            
+            const bal = db.accounts[currentViewedAccount] || 0;
+            document.getElementById('detailAccountName').innerText = currentViewedAccount;
+            
+            const balEl = document.getElementById('detailAccountBalance');
+            balEl.innerText = formatCurr(bal);
+            balEl.className = `text-4xl font-extrabold font-num ${bal < 0 ? 'text-rose-500' : 'text-zinc-100'}`;
+
+            const list = document.getElementById('detailAccountLedger');
+            list.innerHTML = '';
+            
+            const filtered = db.ledger.filter(tx => tx.acc === currentViewedAccount);
+            
+            if(filtered.length === 0) {
+                list.innerHTML = '<p class="p-4 text-xs text-center text-zinc-500">Aucune transaction pour ce compte.</p>';
+                return;
+            }
+
+            filtered.forEach(tx => {
+                let color = 'text-zinc-100', sign = '';
+                if(tx.type === 'gain') { color = 'text-emerald-500'; sign = '+'; }
+                else if (tx.type === 'loss') { color = 'text-rose-500'; sign = '-'; }
+                else { color = 'rainbow-text'; sign = tx.amt > 0 ? '+' : ''; }
+                
+                const date = new Date(tx.date).toLocaleDateString('fr-BE', {day:'2-digit', month:'2-digit', year:'2-digit', hour:'2-digit', minute:'2-digit'});
+                let iconSVG = getIcon(tx.cat);
+                
+                if(tx.type === 'transfer') iconSVG = iconSVG.replace('currentColor', 'url(#rainbowGrad)');
+
+                list.innerHTML += `
+                    <div class="p-3 border-b border-zinc-800/50 flex justify-between items-center clickable hover:bg-zinc-800/20" onclick="openEditModal('${tx.id}')">
+                        <div class="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-400 mr-3 flex-shrink-0">
+                            ${iconSVG}
+                        </div>
+                        <div class="flex-1 overflow-hidden pr-2">
+                            <p class="text-xs text-zinc-200 truncate">${tx.desc}</p>
+                            <p class="text-[9px] text-zinc-500 mt-0.5 uppercase tracking-widest">${date} • ${tx.cat}</p>
+                        </div>
+                        <p class="text-sm font-num ${color}">${sign}${formatCurr(Math.abs(tx.amt))}</p>
+                    </div>`;
+            });
+        }
+
+
+        // ================= UI RENDERING =================
+        function renderAll() {
+            renderHome();
+            if(document.getElementById('page-stats').classList.contains('active')) updateAnalytics(currentAnalyticTimeframe);
+            if(document.getElementById('page-nexus').classList.contains('active')) { renderFullLedger(); renderSysAccounts(); }
+            if(document.getElementById('page-account-details').classList.contains('active')) renderAccountDetails();
+        }
+
+        function renderHome() {
+            const total = Object.values(db.accounts).reduce((a,b)=>a+b,0);
+            document.getElementById('totalBalance').innerText = formatCurr(total);
+
+            const grid = document.getElementById('accountsGrid');
+            grid.innerHTML = '';
+            Object.entries(db.accounts).forEach(([name, bal]) => {
+                grid.innerHTML += `
+                    <div class="surface p-4 flex flex-col items-center justify-center text-center relative overflow-hidden clickable hover:bg-zinc-800/30 transition-colors" onclick="openAccountDetails('${name}')">
+                        <div class="absolute top-0 left-0 w-full h-[3px] rainbow-bg opacity-90"></div>
+                        <span class="text-[10px] text-zinc-500 mb-1 tracking-widest uppercase">${name}</span>
+                        <span class="text-xl font-num ${bal < 0 ? 'text-rose-500' : 'text-zinc-100'}">${formatCurr(bal)}</span>
+                    </div>`;
+            });
+
+            const now = new Date(); let mIn = 0, mOut = 0;
+            db.ledger.forEach(tx => {
+                if(new Date(tx.date).getMonth() === now.getMonth() && new Date(tx.date).getFullYear() === now.getFullYear()) {
+                    if(tx.type === 'gain') mIn += tx.amt;
+                    if(tx.type === 'loss') mOut += tx.amt;
+                }
+            });
+            const net = mIn - mOut;
+            const cfEl = document.getElementById('monthCashflow');
+            cfEl.innerText = (net >= 0 ? '+' : '') + formatCurr(net);
+            cfEl.className = `text-sm font-num ${net >= 0 ? 'text-emerald-500' : 'text-rose-500'}`;
+
+            const rList = document.getElementById('recentHistory');
+            rList.innerHTML = '';
+            if(db.ledger.length === 0) rList.innerHTML = '<p class="p-3 text-xs text-zinc-500 italic">Aucun mouvement</p>';
+            
+            db.ledger.slice(0, 4).forEach(tx => {
+                let color = 'text-zinc-100', sign = '';
+                if(tx.type === 'gain') { color = 'text-emerald-500'; sign = '+'; }
+                else if (tx.type === 'loss') { color = 'text-rose-500'; sign = '-'; }
+                else { color = 'rainbow-text'; sign = tx.amt > 0 ? '+' : ''; }
+
+                const date = new Date(tx.date).toLocaleDateString('fr-BE', {day:'2-digit', month:'2-digit'});
+                let iconSVG = getIcon(tx.cat);
+                
+                if(tx.type === 'transfer') iconSVG = iconSVG.replace('currentColor', 'url(#rainbowGrad)');
+
+                rList.innerHTML += `
+                    <div class="flex justify-between items-center p-3 border-b border-zinc-800 last:border-0 clickable hover:bg-zinc-800/20" onclick="openEditModal('${tx.id}')">
+                        <div class="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-400 mr-3 flex-shrink-0">
+                            ${iconSVG}
+                        </div>
+                        <div class="flex-1 overflow-hidden pr-2">
+                            <p class="text-xs text-zinc-200 truncate">${tx.desc}</p>
+                            <p class="text-[9px] text-zinc-500 uppercase tracking-widest mt-0.5">${date} • ${tx.acc}</p>
+                        </div>
+                        <p class="text-sm font-num ${color}">${sign}${formatCurr(Math.abs(tx.amt))}</p>
+                    </div>`;
+            });
+        }
+
+        function setAnalysisTimeframe(tf) {
+            currentAnalyticTimeframe = tf;
+            document.querySelectorAll('.tab-pill').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-' + tf).classList.add('active');
+            updateAnalytics(currentAnalyticTimeframe);
+        }
+
+        function setAnalysisAccount(acc) {
+            currentAnalyticAccount = acc;
+            document.querySelectorAll('.acc-pill').forEach(el => el.classList.remove('active'));
+            document.getElementById('acc-filter-' + acc).classList.add('active');
+            updateAnalytics(currentAnalyticTimeframe);
+        }
+
+        function updateAnalytics(tf) {
+            const now = new Date();
+            let startDate = new Date();
+            
+            if(tf === 'today') { startDate.setHours(0,0,0,0); }
+            else if (tf === 'week') { startDate.setDate(now.getDate() - 7); }
+            else if (tf === 'month') { startDate.setDate(now.getDate() - 30); }
+
+            let tIn = 0, tOut = 0;
+            let catData = {};
+
+            db.ledger.forEach(tx => {
+                const txDate = new Date(tx.date);
+                const isCorrectAcc = (currentAnalyticAccount === 'all' || tx.acc === currentAnalyticAccount);
+                
+                if(txDate >= startDate && tx.type !== 'transfer' && isCorrectAcc) {
+                    if(tx.type === 'gain') tIn += tx.amt;
+                    if(tx.type === 'loss') {
+                        tOut += tx.amt;
+                        catData[tx.cat] = (catData[tx.cat] || 0) + tx.amt;
+                    }
+                }
+            });
+
+            document.getElementById('stat-in').innerText = formatCurr(tIn);
+            document.getElementById('stat-out').innerText = formatCurr(tOut);
+
+            // OBJECTIVES RENDER
+            const objList = document.getElementById('objectivesList');
+            objList.innerHTML = '';
+            if(!db.objectives || db.objectives.length === 0) {
+                objList.innerHTML = '<p class="text-xs text-zinc-500 italic px-2">Aucun objectif défini.</p>';
+            } else {
+                db.objectives.forEach(obj => {
+                    let currentVal = 0;
+                    let isDanger = false;
+                    let barColor = '';
+
+                    if(obj.type === 'budget') {
+                        db.ledger.forEach(tx => {
+                            if(tx.type === 'loss' && new Date(tx.date).getMonth() === now.getMonth() && new Date(tx.date).getFullYear() === now.getFullYear()) {
+                                if(obj.target === 'All' || tx.cat === obj.target) {
+                                    currentVal += Math.abs(tx.amt);
+                                }
+                            }
+                        });
+                        isDanger = currentVal > obj.amt;
+                        barColor = isDanger ? 'bg-rose-500' : 'rainbow-bg';
+                        const pct = Math.min((currentVal / obj.amt) * 100, 100);
+                        
+                        objList.innerHTML += `
+                            <div class="surface p-3 clickable" onclick="deleteObj('${obj.id}')">
+                                <div class="flex justify-between items-end mb-2">
+                                    <div>
+                                        <p class="text-xs text-zinc-100">${obj.name}</p>
+                                        <p class="text-[9px] text-zinc-500 uppercase tracking-widest mt-0.5">Budget ${obj.target === 'All' ? 'Global' : obj.target} (Mois)</p>
+                                    </div>
+                                    <p class="text-xs font-num ${isDanger ? 'text-rose-500' : 'rainbow-text'}">${formatCurr(currentVal)} / ${formatCurr(obj.amt)}</p>
+                                </div>
+                                <div class="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                                    <div class="h-full ${barColor}" style="width: ${pct}%"></div>
+                                </div>
+                            </div>`;
+                    } else if (obj.type === 'save') {
+                        currentVal = db.accounts[obj.target] || 0;
+                        const pct = Math.min((currentVal / obj.amt) * 100, 100);
+                        
+                        objList.innerHTML += `
+                            <div class="surface p-3 clickable" onclick="deleteObj('${obj.id}')">
+                                <div class="flex justify-between items-end mb-2">
+                                    <div>
+                                        <p class="text-xs text-zinc-100">${obj.name}</p>
+                                        <p class="text-[9px] text-zinc-500 uppercase tracking-widest mt-0.5">Épargne sur ${obj.target}</p>
+                                    </div>
+                                    <p class="text-xs font-num rainbow-text">${formatCurr(currentVal)} / ${formatCurr(obj.amt)}</p>
+                                </div>
+                                <div class="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                                    <div class="h-full rainbow-bg" style="width: ${pct}%"></div>
+                                </div>
+                            </div>`;
+                    }
+                });
+            }
+
+            // BREAKDOWN RENDER
+            const bk = document.getElementById('categoryBreakdown');
+            bk.innerHTML = '';
+            
+            if(Object.keys(catData).length === 0) {
+                bk.innerHTML = '<p class="text-xs text-zinc-500 italic">Aucune donnée sur cette période.</p>';
+                return;
+            }
+
+            const sortedCats = Object.entries(catData).sort((a,b)=>b[1]-a[1]);
+            
+            sortedCats.forEach(([cat, amt]) => {
+                const pct = (amt / tOut) * 100;
+                bk.innerHTML += `
+                    <div>
+                        <div class="flex justify-between text-xs text-zinc-300 mb-1 items-center">
+                            <span class="flex items-center gap-1.5"><span class="text-zinc-500">${getIcon(cat)}</span> ${cat}</span>
+                            <span class="font-num">${formatCurr(amt)} <span class="text-[9px] text-zinc-500">(${pct.toFixed(0)}%)</span></span>
+                        </div>
+                        <div class="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                            <div class="h-full bg-rose-500" style="width: ${pct}%"></div>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function renderFullLedger() {
+            const q = document.getElementById('searchLog').value.toLowerCase();
+            const fl = document.getElementById('fullLedger');
+            fl.innerHTML = '';
+
+            const filtered = db.ledger.filter(tx => 
+                tx.id.toLowerCase().includes(q) || tx.desc.toLowerCase().includes(q) || tx.cat.toLowerCase().includes(q)
+            );
+
+            if(filtered.length === 0) {
+                fl.innerHTML = '<p class="p-4 text-xs text-center text-zinc-500">Recherche infructueuse.</p>';
+                return;
+            }
+
+            filtered.forEach(tx => {
+                let color = 'text-zinc-100', sign = '';
+                if(tx.type === 'gain') { color = 'text-emerald-500'; sign = '+'; }
+                else if (tx.type === 'loss') { color = 'text-rose-500'; sign = '-'; }
+                else { color = 'rainbow-text'; sign = tx.amt > 0 ? '+' : ''; }
+                
+                const date = new Date(tx.date).toLocaleDateString('fr-BE', {day:'2-digit', month:'2-digit', year:'2-digit', hour:'2-digit', minute:'2-digit'});
+                let iconSVG = getIcon(tx.cat);
+                
+                if(tx.type === 'transfer') iconSVG = iconSVG.replace('currentColor', 'url(#rainbowGrad)');
+
+                fl.innerHTML += `
+                    <div class="p-3 border-b border-zinc-800/50 flex justify-between items-center clickable hover:bg-zinc-800/20" onclick="openEditModal('${tx.id}')">
+                        <div class="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-400 mr-3 flex-shrink-0">
+                            ${iconSVG}
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-xs text-zinc-200">${tx.desc}</p>
+                            <div class="flex gap-2 mt-1 items-center">
+                                <span class="text-[9px] font-num text-zinc-500 bg-zinc-900 px-1 py-0.5 rounded border border-zinc-800">${tx.id}</span>
+                                <span class="text-[9px] text-zinc-500 uppercase">${date}</span>
+                            </div>
+                            <p class="text-[10px] text-zinc-500 mt-1 uppercase tracking-widest">${tx.acc} • ${tx.cat}</p>
+                        </div>
+                        <p class="text-sm font-num ${color}">${sign}${formatCurr(Math.abs(tx.amt))}</p>
+                    </div>`;
+            });
+        }
+
+        // ================= SYS ADMIN =================
+        function sysExport() {
+            const a = document.createElement('a');
+            a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
+            a.download = `NexusBank_DB_${new Date().getTime()}.json`; a.click();
+        }
+        function sysImport(e) {
+            const f = e.target.files[0]; if(!f) return;
+            const r = new FileReader();
+            r.onload = (event) => {
+                try { db = JSON.parse(event.target.result); saveDB(); alert('Système restauré.'); switchTab('home', document.querySelectorAll('.nav-item')[0]); } 
+                catch(err) { alert('Fichier corrompu.'); }
+            };
+            r.readAsText(f);
+        }
+        function sysReset() {
+            vibrate('error');
+            if(prompt('Saisissez "PURGE" pour détruire les registres :') === 'PURGE') {
+                db = { accounts: { Cash: 0, Revolut: 0, Wirex: 0, Epargne: 0 }, ledger: [], objectives: [] };
+                saveDB(); alert('Système vierge.'); switchTab('home', document.querySelectorAll('.nav-item')[0]);
+            }
+        }
+
+        // INIT : Charge les menus déroulants puis rend l'UI
+        populateAccountDropdowns();
+        renderAll();
+    </script>
+</body>
+</html>
