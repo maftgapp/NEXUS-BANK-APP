@@ -6,6 +6,12 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Nexus Bank OS</title>
+    
+    <!-- Logo vectoriel intégré -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='120' fill='%2309090b'/%3E%3Cdefs%3E%3ClinearGradient id='rb' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ff0055'/%3E%3Cstop offset='25%25' stop-color='%23ff00ff'/%3E%3Cstop offset='50%25' stop-color='%230055ff'/%3E%3Cstop offset='75%25' stop-color='%2300ffff'/%3E%3Cstop offset='100%25' stop-color='%2300ff55'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ctext x='50%25' y='54%25' font-family='monospace' font-size='320' font-weight='900' fill='url(%23rb)' text-anchor='middle' dominant-baseline='middle'%3EN%3C/text%3E%3C/svg%3E">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='120' fill='%2309090b'/%3E%3Cdefs%3E%3ClinearGradient id='rb' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ff0055'/%3E%3Cstop offset='25%25' stop-color='%23ff00ff'/%3E%3Cstop offset='50%25' stop-color='%230055ff'/%3E%3Cstop offset='75%25' stop-color='%2300ffff'/%3E%3Cstop offset='100%25' stop-color='%2300ff55'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ctext x='50%25' y='54%25' font-family='monospace' font-size='320' font-weight='900' fill='url(%23rb)' text-anchor='middle' dominant-baseline='middle'%3EN%3C/text%3E%3C/svg%3E">
+    <meta name="theme-color" content="#09090b">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* === IMPORT MINECRAFT FONT === */
@@ -141,7 +147,6 @@
 
     <!-- ================= PAGE: PORTFOLIO (HOME) ================= -->
     <main id="page-home" class="page active">
-        <!-- Header Compact -->
         <div class="flex justify-between items-start mb-6">
             <div>
                 <p class="text-micro mb-1">Solde consolidé</p>
@@ -153,15 +158,13 @@
             </div>
         </div>
 
-        <!-- Ledger / Accounts (High Density Grid) -->
         <div class="flex justify-between items-center mb-3 px-1">
             <p class="text-micro">Livre des comptes</p>
         </div>
         <div id="accountsGrid" class="grid grid-cols-2 gap-3 mb-6">
-            <!-- JS Injection via dynamic generation -->
+            <!-- JS Injection -->
         </div>
 
-        <!-- Recent Transactions -->
         <p class="text-micro mb-2 ml-1">Transactions récentes</p>
         <div class="surface overflow-hidden" id="recentHistory">
             <!-- JS Injection -->
@@ -180,13 +183,27 @@
             </div>
         </div>
 
-        <div class="surface p-6 mb-6 text-center relative overflow-hidden">
+        <div class="surface p-6 mb-4 text-center relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-[3px] rainbow-bg opacity-90"></div>
             <p class="text-micro mb-2">Solde disponible</p>
             <p class="text-4xl font-extrabold font-num text-zinc-100" id="detailAccountBalance">0.00 €</p>
         </div>
 
-        <!-- NEW: Action Buttons specific to this account -->
+        <!-- NEW: BOUTON BENTO GRID POUR LES COORDONNÉES -->
+        <div class="surface p-3 mb-6 flex items-center justify-between clickable hover:bg-zinc-800/30" onclick="openAccountInfoView()">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center">
+                    <svg width="20" height="20" stroke="url(#rainbowGrad)" viewBox="0 0 24 24" stroke-width="2" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                </div>
+                <div class="text-left">
+                    <p class="text-xs text-zinc-100 font-bold mb-1">Informations & Coordonnées</p>
+                    <p class="text-[9px] text-zinc-500 uppercase tracking-widest">IBAN, Banque, Titulaire</p>
+                </div>
+            </div>
+            <svg width="16" height="16" class="text-zinc-600" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M9 18l6-6-6-6"></path></svg>
+        </div>
+
+        <!-- Action Buttons -->
         <div class="grid grid-cols-2 gap-3 mb-3">
             <button onclick="openTxModal(false, currentViewedAccount)" class="surface p-3 flex flex-col justify-center items-center clickable border border-rose-500/20">
                 <svg class="text-rose-500 mb-1" width="24" height="24" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><line x1="17" y1="7" x2="7" y2="17"></line><polyline points="17 17 7 17 7 7"></polyline></svg>
@@ -214,7 +231,6 @@
     <main id="page-action" class="page">
         <h1 class="text-xl mb-6">Centre d'opérations</h1>
         
-        <!-- Standard Actions -->
         <div class="grid grid-cols-2 gap-3 mb-6">
             <button onclick="openTxModal(false)" class="surface p-4 flex flex-col justify-center items-center clickable border border-rose-500/20">
                 <svg class="text-rose-500 mb-2" width="28" height="28" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><line x1="17" y1="7" x2="7" y2="17"></line><polyline points="17 17 7 17 7 7"></polyline></svg>
@@ -226,7 +242,6 @@
             </button>
         </div>
 
-        <!-- Internal Transfer -->
         <div class="surface p-4 mb-6 clickable" onclick="openTransferModal()">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center">
@@ -239,7 +254,21 @@
             </div>
         </div>
 
-        <!-- Fast Actions (High Density) -->
+        <!-- Assistant Telegram -->
+        <div class="surface p-4 mb-6 clickable flex items-center justify-between" onclick="window.open('https://t.me/TON_BOT_TELEGRAM', '_blank')">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-[#24A1DE]/10 flex items-center justify-center">
+                    <svg width="20" height="20" class="text-[#24A1DE]" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                </div>
+                <div>
+                    <p class="text-sm text-zinc-100">Assistant Telegram</p>
+                    <p class="text-xs text-zinc-500">Gérer via messagerie</p>
+                </div>
+            </div>
+            <svg width="16" height="16" class="text-zinc-600" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M5 12h14"></path><path d="M12 5l7 7-7 7"></path></svg>
+        </div>
+
+        <!-- Fast Actions -->
         <p class="text-micro mb-2 ml-1">Saisie rapide instantanée</p>
         <div class="flex flex-wrap gap-2">
             <button onclick="quickTx('Fastfood', 12, 'Revolut')" class="surface px-3 py-2 flex items-center gap-2 rounded-lg text-xs clickable">
@@ -267,31 +296,51 @@
     <main id="page-stats" class="page">
         <h1 class="text-lg mb-4">Analytique</h1>
 
-        <!-- Account Selector (Dynamically populated) -->
         <div class="flex gap-2 mb-4 overflow-x-auto pb-2" id="analyticAccFilters">
             <!-- JS Injection -->
         </div>
 
-        <!-- Timeframe Selector -->
         <div class="flex gap-2 mb-6 bg-zinc-900 p-1 rounded-full border border-zinc-800">
             <button onclick="setAnalysisTimeframe('today')" id="tab-today" class="tab-pill flex-1 active clickable">Aujourd'hui</button>
             <button onclick="setAnalysisTimeframe('week')" id="tab-week" class="tab-pill flex-1 clickable">7 Jours</button>
             <button onclick="setAnalysisTimeframe('month')" id="tab-month" class="tab-pill flex-1 clickable">Mois</button>
         </div>
 
-        <!-- Analytics Overview -->
-        <div class="grid grid-cols-2 gap-3 mb-6">
+        <div class="grid grid-cols-2 gap-3 mb-4">
             <div class="surface p-3 border-l-2 border-emerald-500">
                 <p class="text-micro mb-1 text-emerald-500">Entrées</p>
-                <p class="text-base" id="stat-in">0.00 €</p>
+                <p class="text-base font-num" id="stat-in">0.00 €</p>
             </div>
             <div class="surface p-3 border-l-2 border-rose-500">
                 <p class="text-micro mb-1 text-rose-500">Sorties</p>
-                <p class="text-base" id="stat-out">0.00 €</p>
+                <p class="text-base font-num" id="stat-out">0.00 €</p>
             </div>
         </div>
 
-        <!-- OBJECTIFS ET BUDGETS -->
+        <div class="surface p-4 mb-6 h-36 flex flex-col justify-end relative">
+            <p id="chartTitle" class="text-[9px] text-zinc-500 absolute top-3 left-4 uppercase tracking-widest">Flux (6 derniers mois)</p>
+            <div id="monthlyChart" class="flex items-end justify-around h-full w-full gap-2 mt-4 pt-4 border-b border-zinc-800/50">
+                <!-- JS Injection -->
+            </div>
+        </div>
+
+        <div class="flex justify-between items-center mb-3 mt-6">
+            <p class="text-micro ml-1 rainbow-text">Historique & Moyennes</p>
+        </div>
+        <div class="grid grid-cols-2 gap-3 mb-3">
+            <div class="surface p-3">
+                <p class="text-[9px] text-zinc-500 mb-1 uppercase tracking-widest">Moyenne Entrées/mois</p>
+                <p class="text-sm text-emerald-400 font-num" id="avg-in">0.00 €</p>
+            </div>
+            <div class="surface p-3">
+                <p class="text-[9px] text-zinc-500 mb-1 uppercase tracking-widest">Moyenne Épargne/mois</p>
+                <p class="text-sm rainbow-text font-num" id="avg-net">0.00 €</p>
+            </div>
+        </div>
+        <div class="surface mb-6 divide-y divide-zinc-800/50" id="monthlyHistoryList">
+            <!-- JS Injection -->
+        </div>
+
         <div class="flex justify-between items-center mb-3 mt-6">
             <p class="text-micro ml-1 rainbow-text">Suivi & Budgets</p>
             <button onclick="openObjModal()" class="w-8 h-8 bg-zinc-800 rounded-full flex items-center justify-center text-lg text-zinc-300 clickable">
@@ -302,7 +351,6 @@
             <!-- JS Injection -->
         </div>
 
-        <!-- Category Breakdown -->
         <p class="text-micro mb-2 ml-1">Répartition des sorties</p>
         <div class="surface p-3 space-y-3 mb-6" id="categoryBreakdown">
             <!-- JS Injection -->
@@ -315,7 +363,6 @@
 
         <input type="text" id="searchLog" placeholder="Rechercher (ID, Montant, Catégorie)..." onkeyup="renderFullLedger()" class="surface-input mb-4 text-xs py-2">
 
-        <!-- Full Ledger -->
         <div class="surface overflow-y-auto max-h-[300px] mb-6 border border-zinc-800" id="fullLedger">
             <!-- JS Injection -->
         </div>
@@ -325,7 +372,7 @@
             <div id="sysAccountList" class="space-y-3">
                 <!-- JS Injection -->
             </div>
-            <button onclick="sysAddAccount()" class="w-full mt-4 py-3 rounded-xl text-sm rainbow-bg text-zinc-950 active:scale-95 transition-transform font-bold">
+            <button onclick="openSysEditAccount('')" class="w-full mt-4 py-3 rounded-xl text-sm rainbow-bg text-zinc-950 active:scale-95 transition-transform font-bold">
                 + Ajouter un compte
             </button>
         </div>
@@ -370,6 +417,70 @@
 
     <!-- ================= MODALS ================= -->
     
+    <!-- NEW: ACCOUNT INFO VIEW MODAL -->
+    <div id="modal-account-info" class="modal fixed inset-0 flex items-end justify-center">
+        <div class="absolute inset-0" onclick="closeModal('modal-account-info')"></div>
+        <div class="modal-sheet w-full p-5 pb-10 relative z-10">
+            <div class="pull-bar"></div>
+            <h3 class="text-sm uppercase tracking-wider rainbow-text mb-6">COORDONNÉES BANCAIRES</h3>
+            
+            <div class="space-y-4 mb-6">
+                <div>
+                    <p class="text-[10px] text-zinc-500 uppercase tracking-widest mb-1">Banque / Établissement</p>
+                    <p class="text-sm font-bold text-zinc-100" id="infoViewBank">Non défini</p>
+                </div>
+                <div>
+                    <p class="text-[10px] text-zinc-500 uppercase tracking-widest mb-1">Titulaire du compte</p>
+                    <p class="text-sm font-bold text-zinc-100" id="infoViewHolder">Non défini</p>
+                </div>
+                <div>
+                    <p class="text-[10px] text-zinc-500 uppercase tracking-widest mb-1">IBAN / Numéro de compte</p>
+                    <div class="surface p-3 flex justify-between items-center bg-zinc-900 border border-zinc-800">
+                        <p class="text-xs font-num text-emerald-400 break-all mr-3" id="infoViewIban">Non défini</p>
+                        <button onclick="copyIban()" class="w-8 h-8 bg-zinc-800 rounded-lg flex items-center justify-center text-zinc-300 clickable flex-shrink-0">
+                            <svg width="14" height="14" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <button onclick="closeModal('modal-account-info')" class="w-full py-3 rounded-xl text-sm bg-zinc-800 text-zinc-300 active:scale-95 transition-transform font-bold">Fermer</button>
+        </div>
+    </div>
+
+    <!-- NEW: SYSTEM EDIT ACCOUNT MODAL -->
+    <div id="modal-sys-edit-acc" class="modal fixed inset-0 flex items-end justify-center">
+        <div class="absolute inset-0" onclick="closeModal('modal-sys-edit-acc')"></div>
+        <div class="modal-sheet w-full p-5 pb-10 relative z-10">
+            <div class="pull-bar"></div>
+            <h3 class="text-sm uppercase tracking-wider rainbow-text mb-4" id="sysEditAccTitle">ÉDITER LE COMPTE</h3>
+            
+            <div class="space-y-3 mb-6">
+                <div>
+                    <p class="text-micro mb-1 text-zinc-300">Nom du compte *</p>
+                    <input type="text" id="sysEditAccName" class="surface-input font-bold" placeholder="Ex: Revolut">
+                </div>
+                <div>
+                    <p class="text-micro mb-1 text-zinc-500">Banque (Optionnel)</p>
+                    <input type="text" id="sysEditAccBank" class="surface-input" placeholder="Ex: Revolut Bank UAB">
+                </div>
+                <div>
+                    <p class="text-micro mb-1 text-zinc-500">Titulaire (Optionnel)</p>
+                    <input type="text" id="sysEditAccHolder" class="surface-input" placeholder="Ex: Tony">
+                </div>
+                <div>
+                    <p class="text-micro mb-1 text-zinc-500">IBAN (Optionnel)</p>
+                    <input type="text" id="sysEditAccIban" class="surface-input font-num text-emerald-400" placeholder="FR76 ...">
+                </div>
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="deleteSysAccount()" id="btnDeleteSysAcc" class="w-1/3 py-3 rounded-xl text-sm bg-rose-500/10 text-rose-500 border border-rose-500/30 active:scale-95 transition-transform">Supprimer</button>
+                <button onclick="saveSysAccount()" class="w-2/3 py-3 rounded-xl text-sm rainbow-bg text-zinc-950 active:scale-95 transition-transform font-bold">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Transaction Modal -->
     <div id="modal-tx" class="modal fixed inset-0 flex items-end justify-center">
         <div class="absolute inset-0" onclick="closeModal('modal-tx')"></div>
@@ -382,7 +493,7 @@
             
             <div class="flex gap-2 mb-4 items-center border-b border-zinc-800 pb-4">
                 <span class="text-2xl" id="txSign">-</span>
-                <input type="number" id="txAmt" class="bg-transparent border-none outline-none text-4xl text-zinc-100 w-full" placeholder="0.00" inputmode="decimal">
+                <input type="number" id="txAmt" class="bg-transparent border-none outline-none text-4xl text-zinc-100 w-full font-num" placeholder="0.00" inputmode="decimal">
                 <span class="text-xl text-zinc-500">€</span>
             </div>
             
@@ -411,7 +522,7 @@
             <h3 class="text-sm uppercase tracking-wider rainbow-text mb-4">ORDRE DE VIREMENT INTERNE</h3>
             
             <div class="flex gap-2 mb-4 items-center border-b border-zinc-800 pb-4">
-                <input type="number" id="tfAmt" class="bg-transparent border-none outline-none text-4xl text-zinc-100 w-full text-center" placeholder="0.00" inputmode="decimal">
+                <input type="number" id="tfAmt" class="bg-transparent border-none outline-none text-4xl font-num text-zinc-100 w-full text-center" placeholder="0.00" inputmode="decimal">
                 <span class="text-xl text-zinc-500">€</span>
             </div>
             
@@ -452,7 +563,7 @@
             <div id="editForm">
                 <div class="flex gap-2 mb-4 items-center border-b border-zinc-800 pb-4">
                     <span class="text-2xl" id="editSign">-</span>
-                    <input type="number" id="editAmt" class="bg-transparent border-none outline-none text-4xl text-zinc-100 w-full" placeholder="0.00" inputmode="decimal">
+                    <input type="number" id="editAmt" class="bg-transparent border-none outline-none text-4xl font-num text-zinc-100 w-full" placeholder="0.00" inputmode="decimal">
                     <span class="text-xl text-zinc-500">€</span>
                 </div>
                 
@@ -485,7 +596,7 @@
             <h3 class="text-sm uppercase tracking-wider rainbow-text mb-4">DÉFINIR UN OBJECTIF</h3>
             
             <div class="flex gap-2 mb-4 items-center border-b border-zinc-800 pb-4">
-                <input type="number" id="objAmt" class="bg-transparent border-none outline-none text-4xl text-zinc-100 w-full text-center" placeholder="0.00" inputmode="decimal">
+                <input type="number" id="objAmt" class="bg-transparent border-none outline-none text-4xl font-num text-zinc-100 w-full text-center" placeholder="0.00" inputmode="decimal">
                 <span class="text-xl text-zinc-500">€</span>
             </div>
             
@@ -533,17 +644,20 @@
         const DATA_KEY = 'nexusBankPro';
         let db = JSON.parse(localStorage.getItem(DATA_KEY)) || {
             accounts: { Cash: 0, Revolut: 0, Wirex: 0, Epargne: 0 },
+            accountInfo: {}, // NOUVEAU: Stockage des IBAN/Infos
             ledger: [], 
             objectives: []
         };
         
         if(!db.objectives) db.objectives = [];
+        if(!db.accountInfo) db.accountInfo = {}; // Sécurité MAJ
 
         let txModeGain = false;
         let currentAnalyticTimeframe = 'today'; 
         let currentAnalyticAccount = 'all';
         let currentEditId = null;
-        let currentViewedAccount = null; // Variable for the Account Details page
+        let currentViewedAccount = null;
+        let editingAccountName = null; // Pour le modal d'édition système
 
         // Utilities
         function vibrate(type = 'light') {
@@ -578,11 +692,10 @@
             return m[cat] || SVG.file;
         }
 
-        // ================= GESTION DES COMPTES =================
+        // ================= GESTION DES COMPTES (AVANCÉE) =================
         function populateAccountDropdowns() {
             const accounts = Object.keys(db.accounts);
             
-            // Menus déroulants classiques
             const selects = ['txAcc', 'tfFrom', 'tfTo', 'editAcc'];
             selects.forEach(id => {
                 const el = document.getElementById(id);
@@ -596,7 +709,6 @@
                 }
             });
 
-            // Filtres Analytiques
             const filterContainer = document.getElementById('analyticAccFilters');
             if(filterContainer) {
                 filterContainer.innerHTML = `<button onclick="setAnalysisAccount('all')" id="acc-filter-all" class="acc-pill ${currentAnalyticAccount === 'all' ? 'active' : ''} clickable">Tous</button>`;
@@ -605,53 +717,50 @@
                 });
             }
 
-            // Met à jour la liste des objectifs si besoin
             toggleObjType();
         }
 
-        function sysAddAccount() {
+        function openSysEditAccount(name) {
             vibrate('light');
-            const name = prompt("Nom du nouveau compte :");
-            if(!name || name.trim() === '') return;
-            const cleanName = name.trim();
+            editingAccountName = name;
             
-            if(db.accounts[cleanName] !== undefined) {
-                vibrate('error'); alert("Ce compte existe déjà !"); return;
-            }
+            document.getElementById('sysEditAccTitle').innerText = name ? "ÉDITER LE COMPTE" : "NOUVEAU COMPTE";
+            document.getElementById('sysEditAccName').value = name;
             
-            vibrate('heavy');
-            db.accounts[cleanName] = 0;
-            populateAccountDropdowns();
-            saveDB();
+            const info = db.accountInfo[name] || {};
+            document.getElementById('sysEditAccBank').value = info.bank || '';
+            document.getElementById('sysEditAccHolder').value = info.holder || '';
+            document.getElementById('sysEditAccIban').value = info.iban || '';
+            
+            document.getElementById('btnDeleteSysAcc').style.display = name ? 'block' : 'none';
+            
+            openModal('modal-sys-edit-acc');
         }
 
-        function sysEditAccount(oldName) {
-            vibrate('light');
-            const action = prompt(`Compte : ${oldName}\n\nPour RENOMMER, tapez le nouveau nom.\nPour SUPPRIMER, tapez "SUPPRIMER".`, oldName);
-            
-            if(!action || action.trim() === '') return;
-            
-            if(action.trim().toUpperCase() === 'SUPPRIMER') {
-                if(db.accounts[oldName] !== 0) {
-                    if(!confirm(`Attention, le solde n'est pas à zéro (${formatCurr(db.accounts[oldName])}). Confirmer la suppression ?`)) return;
-                }
-                delete db.accounts[oldName];
-                if(currentAnalyticAccount === oldName) currentAnalyticAccount = 'all';
-                vibrate('heavy');
-                populateAccountDropdowns();
-                saveDB();
-            } else {
-                const newName = action.trim();
-                if(newName === oldName) return;
-                if(db.accounts[newName] !== undefined) {
-                    vibrate('error'); alert("Ce nom est déjà pris !"); return;
-                }
-                
-                // Transférer les données
+        function saveSysAccount() {
+            const oldName = editingAccountName;
+            const newName = document.getElementById('sysEditAccName').value.trim();
+            const bank = document.getElementById('sysEditAccBank').value.trim();
+            const holder = document.getElementById('sysEditAccHolder').value.trim();
+            const iban = document.getElementById('sysEditAccIban').value.trim();
+
+            if(!newName) { vibrate('error'); return; }
+
+            // Vérif doublon
+            if(oldName !== newName && db.accounts[newName] !== undefined) {
+                vibrate('error'); alert("Ce nom de compte est déjà pris !"); return;
+            }
+
+            vibrate('heavy');
+
+            if(!oldName) {
+                // Création
+                db.accounts[newName] = 0;
+            } else if (oldName !== newName) {
+                // Renommage (Transfert de l'argent et modif historique)
                 db.accounts[newName] = db.accounts[oldName];
                 delete db.accounts[oldName];
                 
-                // Mettre à jour l'historique et les objectifs
                 db.ledger.forEach(tx => {
                     if(tx.acc === oldName) tx.acc = newName;
                     if(tx.type === 'transfer') tx.desc = tx.desc.replace(oldName, newName);
@@ -662,11 +771,38 @@
                 
                 if(currentAnalyticAccount === oldName) currentAnalyticAccount = newName;
                 if(currentViewedAccount === oldName) currentViewedAccount = newName;
-                
-                vibrate('heavy');
-                populateAccountDropdowns();
-                saveDB();
+
+                // Transférer les infos
+                db.accountInfo[newName] = db.accountInfo[oldName] || {};
+                delete db.accountInfo[oldName];
             }
+
+            // Sauvegarde des infos
+            db.accountInfo[newName] = { bank, holder, iban };
+
+            populateAccountDropdowns();
+            saveDB();
+            closeModal('modal-sys-edit-acc');
+        }
+
+        function deleteSysAccount() {
+            if(!editingAccountName) return;
+            vibrate('error');
+            
+            if(db.accounts[editingAccountName] !== 0) {
+                if(!confirm(`Attention ! Le solde n'est pas à zéro (${formatCurr(db.accounts[editingAccountName])}). Es-tu sûr de vouloir supprimer ce compte définitivement ?`)) return;
+            } else {
+                if(!confirm(`Supprimer le compte ${editingAccountName} ?`)) return;
+            }
+
+            delete db.accounts[editingAccountName];
+            delete db.accountInfo[editingAccountName];
+            
+            if(currentAnalyticAccount === editingAccountName) currentAnalyticAccount = 'all';
+            
+            populateAccountDropdowns();
+            saveDB();
+            closeModal('modal-sys-edit-acc');
         }
 
         function renderSysAccounts() {
@@ -675,14 +811,13 @@
             list.innerHTML = '';
             Object.entries(db.accounts).forEach(([name, bal]) => {
                 list.innerHTML += `
-                    <div class="flex justify-between items-center p-3 border-b border-zinc-800/50 last:border-0 clickable hover:bg-zinc-800/30" onclick="sysEditAccount('${name}')">
+                    <div class="flex justify-between items-center p-3 border-b border-zinc-800/50 last:border-0 clickable hover:bg-zinc-800/30" onclick="openSysEditAccount('${name}')">
                         <span class="text-sm font-bold text-zinc-200">${name}</span>
                         <span class="text-xs text-zinc-500">${formatCurr(bal)} ✏️</span>
                     </div>
                 `;
             });
         }
-
 
         // ================= ROUTER & MODALS =================
         function switchTab(tabId, el) {
@@ -702,6 +837,48 @@
 
         function openModal(id) { vibrate('light'); document.getElementById(id).classList.add('active'); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+        // ================= COORDONNÉES BANCAIRES (INFO VIEW) =================
+        function openAccountInfoView() {
+            if(!currentViewedAccount) return;
+            vibrate('light');
+            
+            const info = db.accountInfo[currentViewedAccount] || {};
+            
+            document.getElementById('infoViewBank').innerText = info.bank || "Non défini";
+            document.getElementById('infoViewBank').className = info.bank ? "text-sm font-bold text-zinc-100" : "text-sm font-bold text-zinc-600 italic";
+            
+            document.getElementById('infoViewHolder').innerText = info.holder || "Non défini";
+            document.getElementById('infoViewHolder').className = info.holder ? "text-sm font-bold text-zinc-100" : "text-sm font-bold text-zinc-600 italic";
+            
+            document.getElementById('infoViewIban').innerText = info.iban || "Non défini";
+            document.getElementById('infoViewIban').className = info.iban ? "text-xs font-num text-emerald-400 break-all mr-3" : "text-xs font-num text-zinc-600 italic break-all mr-3";
+            
+            openModal('modal-account-info');
+        }
+
+        function copyIban() {
+            const ibanText = document.getElementById('infoViewIban').innerText;
+            if(!ibanText || ibanText === "Non défini") { vibrate('error'); return; }
+            
+            try {
+                navigator.clipboard.writeText(ibanText).then(() => {
+                    vibrate('heavy');
+                    // Petit feedback visuel
+                    const btn = document.querySelector('#infoViewIban + button');
+                    const oldSvg = btn.innerHTML;
+                    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" stroke="#10b981" stroke-width="2" fill="none"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+                    setTimeout(() => btn.innerHTML = oldSvg, 1500);
+                });
+            } catch (err) {
+                // Fallback ancienne méthode si API clipboard non dispo
+                const el = document.createElement('textarea');
+                el.value = ibanText; document.body.appendChild(el); el.select();
+                document.execCommand('copy'); document.body.removeChild(el);
+                vibrate('heavy');
+            }
+        }
+
 
         // ================= TRANSACTIONS ENGINE =================
         function openTxModal(isGain, preselectAcc = null) {
@@ -787,7 +964,6 @@
 
         function quickTx(desc, amt, acc, isGain = false) {
             vibrate('heavy');
-            // Sécurité si le compte du raccourci a été supprimé
             if(db.accounts[acc] === undefined) acc = Object.keys(db.accounts)[0];
             
             db.accounts[acc] += (isGain ? amt : -amt);
@@ -814,7 +990,6 @@
                 
                 document.getElementById('editAmt').value = Math.abs(tx.amt);
                 document.getElementById('editDesc').value = tx.desc;
-                // Si le compte originel a été effacé, on met le premier dispo
                 document.getElementById('editAcc').value = db.accounts.hasOwnProperty(tx.acc) ? tx.acc : Object.keys(db.accounts)[0];
                 
                 const signEl = document.getElementById('editSign');
@@ -839,13 +1014,11 @@
             if(!newAmt || newAmt <= 0 || !db.accounts.hasOwnProperty(newAcc)) { vibrate('error'); return; }
             vibrate('heavy');
             
-            // Restaure le compte d'origine s'il existe encore
             if(db.accounts[tx.acc] !== undefined) {
                 if(tx.type === 'gain') db.accounts[tx.acc] -= tx.amt;
                 else if(tx.type === 'loss') db.accounts[tx.acc] += tx.amt;
             }
             
-            // Applique sur le nouveau
             if(tx.type === 'gain') db.accounts[newAcc] += newAmt;
             else if(tx.type === 'loss') db.accounts[newAcc] -= newAmt;
 
@@ -990,7 +1163,7 @@
         }
 
 
-        // ================= UI RENDERING =================
+        // ================= UI RENDERING & ANALYTICS =================
         function renderAll() {
             renderHome();
             if(document.getElementById('page-stats').classList.contains('active')) updateAnalytics(currentAnalyticTimeframe);
@@ -1079,6 +1252,7 @@
             let tIn = 0, tOut = 0;
             let catData = {};
 
+            // 1. Calculs
             db.ledger.forEach(tx => {
                 const txDate = new Date(tx.date);
                 const isCorrectAcc = (currentAnalyticAccount === 'all' || tx.acc === currentAnalyticAccount);
@@ -1095,7 +1269,127 @@
             document.getElementById('stat-in').innerText = formatCurr(tIn);
             document.getElementById('stat-out').innerText = formatCurr(tOut);
 
-            // OBJECTIVES RENDER
+            // 2. Traitement Graphique Dynamique
+            let chartPoints = {};
+            if (tf === 'today') {
+                document.getElementById('chartTitle').innerText = "FLUX (HIER VS AUJ.)";
+                for(let i=1; i>=0; i--) {
+                    let d = new Date(now); d.setDate(d.getDate() - i);
+                    let key = d.toDateString();
+                    chartPoints[key] = { in: 0, out: 0, label: i === 0 ? "Auj." : "Hier" };
+                }
+            } else if (tf === 'week') {
+                document.getElementById('chartTitle').innerText = "FLUX (7 DERNIERS JOURS)";
+                for(let i=6; i>=0; i--) {
+                    let d = new Date(now); d.setDate(d.getDate() - i);
+                    let key = d.toDateString();
+                    chartPoints[key] = { in: 0, out: 0, label: d.toLocaleDateString('fr-BE', {weekday:'short'}) };
+                }
+            } else if (tf === 'month') {
+                document.getElementById('chartTitle').innerText = "FLUX (6 DERNIERS MOIS)";
+                for(let i=5; i>=0; i--) {
+                    let d = new Date(now); d.setMonth(d.getMonth() - i);
+                    let key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2, '0');
+                    chartPoints[key] = { in: 0, out: 0, label: d.toLocaleDateString('fr-BE', {month:'short'}) };
+                }
+            }
+
+            let allTimeMonths = {};
+
+            db.ledger.forEach(tx => {
+                const isCorrectAcc = (currentAnalyticAccount === 'all' || tx.acc === currentAnalyticAccount);
+                if(tx.type !== 'transfer' && isCorrectAcc) {
+                    let txDate = new Date(tx.date);
+                    
+                    // Injection dans le graphique
+                    let chartKey;
+                    if (tf === 'today' || tf === 'week') {
+                        chartKey = txDate.toDateString();
+                    } else {
+                        chartKey = txDate.getFullYear() + '-' + String(txDate.getMonth()+1).padStart(2, '0');
+                    }
+                    
+                    if(chartPoints[chartKey]) {
+                        if(tx.type === 'gain') chartPoints[chartKey].in += tx.amt;
+                        if(tx.type === 'loss') chartPoints[chartKey].out += tx.amt;
+                    }
+                    
+                    // Pour l'historique et les moyennes (toujours mensuel)
+                    let monthKey = txDate.getFullYear() + '-' + String(txDate.getMonth()+1).padStart(2, '0');
+                    if(!allTimeMonths[monthKey]) {
+                        allTimeMonths[monthKey] = { in: 0, out: 0, label: txDate.toLocaleDateString('fr-BE', {month:'long', year:'numeric'}) };
+                    }
+                    if(tx.type === 'gain') allTimeMonths[monthKey].in += tx.amt;
+                    if(tx.type === 'loss') allTimeMonths[monthKey].out += tx.amt;
+                }
+            });
+
+            let maxAmt = 0;
+            Object.values(chartPoints).forEach(m => {
+                if(m.in > maxAmt) maxAmt = m.in;
+                if(m.out > maxAmt) maxAmt = m.out;
+            });
+
+            let chartHTML = '';
+            Object.values(chartPoints).forEach(m => {
+                let hIn = maxAmt > 0 ? (m.in / maxAmt) * 100 : 0;
+                let hOut = maxAmt > 0 ? (m.out / maxAmt) * 100 : 0;
+                
+                chartHTML += `
+                    <div class="flex flex-col items-center flex-1 h-full justify-end">
+                        <div class="flex items-end justify-center w-full h-[90%] gap-[2px]">
+                            <div class="w-[45%] bg-emerald-500 rounded-t-[2px] transition-all duration-500" style="height: ${hIn}%"></div>
+                            <div class="w-[45%] bg-rose-500 rounded-t-[2px] transition-all duration-500" style="height: ${hOut}%"></div>
+                        </div>
+                        <span class="text-[8px] text-zinc-500 uppercase mt-2">${m.label.substring(0,4).replace('.','')}</span>
+                    </div>
+                `;
+            });
+            document.getElementById('monthlyChart').innerHTML = chartHTML;
+
+            let currentMonthKey = new Date().getFullYear() + '-' + String(new Date().getMonth()+1).padStart(2, '0');
+            let totalPastIn = 0, totalPastNet = 0, pastCount = 0;
+            let historyHTML = '';
+
+            Object.keys(allTimeMonths).sort().reverse().forEach(key => {
+                let m = allTimeMonths[key];
+                let net = m.in - m.out;
+                
+                if(key !== currentMonthKey) {
+                    totalPastIn += m.in;
+                    totalPastNet += net;
+                    pastCount++;
+                }
+
+                let colorNet = net >= 0 ? 'text-emerald-500' : 'text-rose-500';
+                let sign = net >= 0 ? '+' : '';
+                
+                historyHTML += `
+                    <div class="p-3 flex justify-between items-center">
+                        <div>
+                            <p class="text-xs font-bold text-zinc-200 capitalize">${m.label}</p>
+                            <div class="flex gap-2 mt-1">
+                                <span class="text-[9px] text-emerald-500">In: ${formatCurr(m.in)}</span>
+                                <span class="text-[9px] text-rose-500">Out: ${formatCurr(m.out)}</span>
+                            </div>
+                        </div>
+                        <p class="text-sm font-bold font-num ${colorNet}">${sign}${formatCurr(net)}</p>
+                    </div>
+                `;
+            });
+
+            if(pastCount > 0) {
+                document.getElementById('avg-in').innerText = formatCurr(totalPastIn / pastCount);
+                document.getElementById('avg-net').innerText = formatCurr(totalPastNet / pastCount);
+            } else {
+                document.getElementById('avg-in').innerText = "0.00 €";
+                document.getElementById('avg-net').innerText = "0.00 €";
+                if(historyHTML === '') historyHTML = '<p class="p-4 text-xs text-center text-zinc-500">Aucun historique disponible.</p>';
+            }
+            document.getElementById('monthlyHistoryList').innerHTML = historyHTML;
+
+
+            // 3. OBJECTIVES RENDER
             const objList = document.getElementById('objectivesList');
             objList.innerHTML = '';
             if(!db.objectives || db.objectives.length === 0) {
@@ -1152,7 +1446,7 @@
                 });
             }
 
-            // BREAKDOWN RENDER
+            // 4. BREAKDOWN RENDER
             const bk = document.getElementById('categoryBreakdown');
             bk.innerHTML = '';
             
@@ -1239,7 +1533,7 @@
         function sysReset() {
             vibrate('error');
             if(prompt('Saisissez "PURGE" pour détruire les registres :') === 'PURGE') {
-                db = { accounts: { Cash: 0, Revolut: 0, Wirex: 0, Epargne: 0 }, ledger: [], objectives: [] };
+                db = { accounts: { Cash: 0, Revolut: 0, Wirex: 0, Epargne: 0 }, accountInfo: {}, ledger: [], objectives: [] };
                 saveDB(); alert('Système vierge.'); switchTab('home', document.querySelectorAll('.nav-item')[0]);
             }
         }
